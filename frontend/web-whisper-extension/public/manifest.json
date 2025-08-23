@@ -5,18 +5,9 @@
   "version": "1.0.0",
   "permissions": ["tabCapture", "storage", "scripting", "activeTab"],
   "background": {
-    "service_worker": "background/background.js"
+    "service_worker": "src/background/background.ts"
   },
   "action": {
-    "default_popup": "popup/index.html",
-    "default_icon": {
-      "128": "icon128.png"
-    }
-  },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content/content.js"]
-    }
-  ]
+    "default_popup": "src/popup/index.html"
+  }
 }
