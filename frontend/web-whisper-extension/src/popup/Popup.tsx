@@ -45,14 +45,14 @@ const Popup: React.FC = () => {
       setCapturing(true);
       setDuration(0);
       setSummary("");
-      // Add your startAudioCapture function here
-      // await startAudioCapture();
+      chrome.runtime.sendMessage({ action: "capture-audio" });
     } else {
+
+      //for simulation only after listening
       setCapturing(false);
       setStatus("processing");
       setProcessing(true);
       
-      // Simulate processing delay
       setTimeout((): void => {
         setProcessing(false);
         setStatus("completed");
