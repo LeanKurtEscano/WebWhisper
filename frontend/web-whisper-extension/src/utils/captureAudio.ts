@@ -1,5 +1,5 @@
 export function startAudioCapture() {
-  chrome.runtime.sendMessage({ type: "START_CAPTURE" }, (response) => {
+  chrome.runtime.sendMessage({ type: "capture-audio" }, (response) => {
     if (response?.success) {
       console.log("Audio capture started ✅");
     } else {

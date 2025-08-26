@@ -1,13 +1,30 @@
 {
   "manifest_version": 3,
-  "name": "WebWhisper",
-  "description": "Capture and transcribe audio directly from your browser tabs.",
+  "name": "PageWhisper",
+  "description": "Summarize, translate, and explain any page text with AI.",
   "version": "1.0.0",
-  "permissions": ["tabCapture", "storage", "scripting", "activeTab"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "contextMenus",
+    "scripting",
+    "activeTab",
+    "storage"
+  ],
   "background": {
-    "service_worker": "src/background/background.ts"
+    "service_worker": "background.js"
   },
   "action": {
-    "default_popup": "src/popup/index.html"
-  }
+    "default_popup": "popup/index.html",
+    "default_icon": "icons/icon48.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
 }
