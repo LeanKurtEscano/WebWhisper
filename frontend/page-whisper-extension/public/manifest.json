@@ -1,30 +1,42 @@
 {
   "manifest_version": 3,
   "name": "PageWhisper",
-  "description": "Summarize, translate, and explain any page text with AI.",
   "version": "1.0.0",
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  },
+  "description": "AI-powered page content summarizer. Get instant summaries and key insights from any webpage with one click.",
+  
   "permissions": [
-    "contextMenus",
-    "scripting",
     "activeTab",
-    "storage"
+    "storage",
+    "scripting"
   ],
+  
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "src/background.ts",
+    "type": "module"
   },
-  "action": {
-    "default_popup": "popup/index.html",
-    "default_icon": "icons/icon48.png"
-  },
+  
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["src/content.ts"],
+      "run_at": "document_idle"
     }
-  ]
+  ],
+  
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "PageWhisper - Analyze Page"
+  },
+  
+  "icons": {
+    "16": "vite.svg",
+    "32": "vite.svg",
+    "48": "vite.svg",
+    "128": "vite.svg"
+  }
 }
