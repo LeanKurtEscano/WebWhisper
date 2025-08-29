@@ -1,24 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FileText, Settings, Eye, Copy, Save, AlertCircle, CheckCircle, Sparkles, Clock, BarChart3, TrendingUp } from "lucide-react";
 import { getStatusColor,getImportanceColor } from "../utils/status";
-type Status = "idle" | "extracting" | "processing" | "completed" | "error";
-
-interface KeyPoint {
-  title: string;
-  importance: "high" | "medium" | "low";
-  category: string;
-}
-
-interface PopupState {
-  extracting: boolean;
-  processing: boolean;
-  summary: string;
-  keyPoints: KeyPoint[];
-  status: Status;
-  tabTitle: string;
-  wordCount: number;
-  processingTime: number;
-}
+import type{ Status } from "../types/status";
+import type{ KeyPoint } from "../types/keypoint";
 
 const Popup: React.FC = () => {
   const [extracting, setExtracting] = useState<boolean>(false);
