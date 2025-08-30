@@ -1,1 +1,0 @@
-export type Status = "idle" | "extracting" | "processing" | "completed" | "error";
