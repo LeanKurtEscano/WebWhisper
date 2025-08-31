@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BookOpen, Brain, Search, Download, ArrowRight, Check, AlertCircle, Lightbulb, FileText, BarChart3, Sparkles, Star, Users } from 'lucide-react';
+import { scraperApiClient } from '../config/apiConfig';
 
 const Generate: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -25,7 +26,16 @@ const Generate: React.FC = () => {
     if (!isValid) return;
     
     setIsLoading(true);
-    // Simulate processing time
+    try {
+      const response = await scraperApiClient.post('/insights', {url: url });
+      if(response.status === 200) {
+    
+      }
+
+    } catch(error) {
+       console.error("Error fetching insights:", error);
+    }
+ 
     setTimeout(() => {
       setIsLoading(false);
     }, 2000);

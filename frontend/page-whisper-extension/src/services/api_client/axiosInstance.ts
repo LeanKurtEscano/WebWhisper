@@ -15,3 +15,6 @@ export const createApiClient = (axiosInstance: AxiosInstance) => {
       axiosInstance.delete<T>(url, config),
   };
 };
+
+
+
