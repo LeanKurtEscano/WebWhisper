@@ -20,7 +20,7 @@ const Main: React.FC = () => {
   return (
     <>
     <Routes> 
-      <Route path="/generate" element={<Generate />} />
+      <Route path="/" element={<Generate />} />
     </Routes>
       
     </>
