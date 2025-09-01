@@ -1,7 +1,11 @@
 
 import requests
 from bs4 import BeautifulSoup
+
+from services.data.semantic_chunker import Chunking
 class WebScraper:
+    
+    
     def __init__(self, url:str):
         self.url = url
         self.headers = {
