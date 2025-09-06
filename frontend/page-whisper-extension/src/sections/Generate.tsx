@@ -1,44 +1,72 @@
 import React, { useState } from 'react';
-import { BookOpen, Brain, Search, Download, ArrowRight, Check, AlertCircle, Lightbulb, FileText, BarChart3, Sparkles, Star, Users } from 'lucide-react';
-import { scraperApiClient } from '../config/apiConfig';
+import { Receipt, Upload, Eye, Trash2, ArrowRight, Check, AlertCircle, Calculator, Database, FileText, BarChart3, Sparkles, Star, Users, Building } from 'lucide-react';
 
 const Generate: React.FC = () => {
-  const [url, setUrl] = useState('');
+  const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isValid, setIsValid] = useState(false);
+  const [previews, setPreviews] = useState<{[key: string]: string}>({});
 
-  const validateUrl = (input: string) => {
-    try {
-      new URL(input);
-      return input.startsWith('http://') || input.startsWith('https://');
-    } catch {
-      return false;
-    }
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFiles = Array.from(e.target.files || []);
+    const newFiles = uploadedFiles.slice(0, 5 - files.length);
+    
+    setFiles(prev => [...prev, ...newFiles]);
+    
+    // Generate previews for new files
+    newFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviews(prev => ({
+          ...prev,
+          [file.name]: e.target?.result as string
+        }));
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
-  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setUrl(value);
-    setIsValid(validateUrl(value));
+  const removeFile = (index: number) => {
+    const fileToRemove = files[index];
+    setFiles(prev => prev.filter((_, i) => i !== index));
+    setPreviews(prev => {
+      const newPreviews = { ...prev };
+      delete newPreviews[fileToRemove.name];
+      return newPreviews;
+    });
   };
 
-  const handleGenerate = async () => {
-    if (!isValid) return;
+  const handleAnalyze = async () => {
+    if (files.length === 0) return;
     
     setIsLoading(true);
     try {
-      const response = await scraperApiClient.post('/insights', {url: url });
-      if(response.status === 200) {
-    
-      }
-
+   
+      const formData = new FormData();
+      files.forEach(file => {
+        formData.append('receipts', file);
+      });
+      
+      // const response = await fetch('/api/analyze-receipts', {
+      //   method: 'POST',
+      //   body: formData
+      // });
+      
+      // Simulate processing
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
     } catch(error) {
-       console.error("Error fetching insights:", error);
-    }
- 
-    setTimeout(() => {
+       console.error("Error analyzing receipts:", error);
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (
@@ -58,15 +86,15 @@ const Generate: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-r from-slate-700 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
-                <BookOpen className="w-6 h-6 text-white" />
+                <Receipt className="w-6 h-6 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent">
-                PageWhisper
+                SmartBooks
               </span>
             </div>
             <div className="flex items-center gap-4">
               <button className="px-4 py-2 text-slate-600 hover:text-slate-900 font-medium transition-colors">
-                Research Tools
+                Analytics
               </button>
               <button className="px-4 py-2 text-slate-600 hover:text-slate-900 font-medium transition-colors">
                 Pricing
@@ -81,65 +109,94 @@ const Generate: React.FC = () => {
         {/* Hero Section */}
         <div className="container mx-auto px-6 py-16 text-center">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-slate-50 to-blue-50 border border-blue-200/50 rounded-full px-4 py-2 mb-8">
-            <Brain className="w-4 h-4 text-blue-600" />
-            <span className="text-sm font-medium text-blue-800">AI-Powered Research Intelligence</span>
+            <Calculator className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-800">AI-Powered Bookkeeping Automation</span>
           </div>
           
           <h1 className="text-6xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-blue-800 bg-clip-text text-transparent mb-6 leading-tight">
-            Your Research Assistant            <br />
+            Smart Receipt &<br />
             <span className="relative">
-              Assistant
+              Invoice Analyzer
               <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-slate-400 to-blue-400 rounded-full"></div>
             </span>
           </h1>
           
           <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-12 leading-relaxed">
-            Transform any webpage into structured insights. PageWhisper analyzes, summarizes, and extracts 
-            key information to accelerate your research and decision-making process.
+            Upload your receipts and invoices to get instant OCR extraction and AI-powered analysis. 
+            Automatically categorize, extract data, and maintain organized financial records.
           </p>
 
-          {/* Main Research Card */}
+          {/* Main Upload Card */}
           <div className="max-w-2xl mx-auto mb-16">
             <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-8">
               <div className="text-left mb-6">
-                <h2 className="text-2xl font-bold text-slate-900 mb-2">Analyze Any Webpage</h2>
-                <p className="text-slate-600">Enter a URL to get AI-powered insights and structured analysis</p>
+                <h2 className="text-2xl font-bold text-slate-900 mb-2">Upload Receipts & Invoices</h2>
+                <p className="text-slate-600">Drag and drop or click to upload up to 5 files (JPG, PNG, PDF)</p>
               </div>
 
               <div className="space-y-6">
-                <div>
-                  <div className="relative">
-                    <input
-                      type="url"
-                      value={url}
-                      onChange={handleUrlChange}
-                      placeholder="https://research-article.com"
-                      className={`w-full px-6 py-4 pr-12 text-lg border-2 rounded-2xl transition-all duration-200 focus:outline-none ${
-                        url && isValid 
-                          ? 'border-green-300 bg-green-50/50 focus:border-green-500' 
-                          : url && !isValid 
-                          ? 'border-red-300 bg-red-50/50 focus:border-red-500'
-                          : 'border-slate-200 bg-slate-50/50 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100'
-                      }`}
-                    />
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                      {url && isValid && <Check className="w-6 h-6 text-green-500" />}
-                      {url && !isValid && <AlertCircle className="w-6 h-6 text-red-500" />}
-                    </div>
-                  </div>
-                  {url && !isValid && (
-                    <p className="text-sm text-red-600 mt-2 flex items-center gap-1">
-                      <AlertCircle className="w-4 h-4" />
-                      Please enter a valid URL starting with http:// or https://
+                {/* Upload Zone */}
+                <div className="relative">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,.pdf"
+                    onChange={handleFileUpload}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    disabled={files.length >= 5}
+                  />
+                  <div className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200 ${
+                    files.length >= 5 
+                      ? 'border-slate-300 bg-slate-50 cursor-not-allowed'
+                      : 'border-blue-300 bg-blue-50/50 hover:border-blue-500 hover:bg-blue-50 cursor-pointer'
+                  }`}>
+                    <Upload className={`w-12 h-12 mx-auto mb-4 ${files.length >= 5 ? 'text-slate-400' : 'text-blue-500'}`} />
+                    <p className={`text-lg font-medium mb-2 ${files.length >= 5 ? 'text-slate-500' : 'text-slate-700'}`}>
+                      {files.length >= 5 ? 'Maximum files reached' : 'Upload your receipts'}
                     </p>
-                  )}
+                    <p className={`text-sm ${files.length >= 5 ? 'text-slate-400' : 'text-slate-500'}`}>
+                      {files.length >= 5 
+                        ? 'Remove files to upload more'
+                        : `${5 - files.length} more files can be uploaded`
+                      }
+                    </p>
+                  </div>
                 </div>
 
+                {/* File List */}
+                {files.length > 0 && (
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {files.map((file, index) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border">
+                        {previews[file.name] && (
+                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-200 flex-shrink-0">
+                            <img 
+                              src={previews[file.name]} 
+                              alt="Preview" 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <div className="flex-1 text-left">
+                          <p className="font-medium text-slate-900 text-sm truncate">{file.name}</p>
+                          <p className="text-xs text-slate-500">{formatFileSize(file.size)}</p>
+                        </div>
+                        <button
+                          onClick={() => removeFile(index)}
+                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <button
-                  onClick={handleGenerate}
-                  disabled={!isValid || isLoading}
+                  onClick={handleAnalyze}
+                  disabled={files.length === 0 || isLoading}
                   className={`w-full py-4 px-6 rounded-2xl font-bold text-lg transition-all duration-200 flex items-center justify-center gap-3 ${
-                    isValid && !isLoading
+                    files.length > 0 && !isLoading
                       ? 'bg-gradient-to-r from-slate-700 to-blue-700 hover:from-slate-800 hover:to-blue-800 text-white shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-[1.02]'
                       : 'bg-slate-200 text-slate-500 cursor-not-allowed'
                   }`}
@@ -147,19 +204,19 @@ const Generate: React.FC = () => {
                   {isLoading ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Analyzing Content...
+                      Processing Receipts...
                     </>
                   ) : (
                     <>
-                      <Search className="w-5 h-5" />
-                      Start Analysis
+                      <Eye className="w-5 h-5" />
+                      Analyze Receipts
                       <ArrowRight className="w-5 h-5" />
                     </>
                   )}
                 </button>
 
                 <p className="text-xs text-slate-500 text-center">
-                  📚 Free tier includes 50 analyses per month • No credit card required
+                  📊 Free tier includes 50 receipts per month • Automatic data extraction
                 </p>
               </div>
             </div>
@@ -167,55 +224,55 @@ const Generate: React.FC = () => {
 
           {/* Trust Indicators */}
           <div className="flex flex-wrap justify-center items-center gap-8 mb-16 opacity-60">
-            <span className="text-sm font-medium text-slate-600">Trusted by researchers at 500+ institutions</span>
+            <span className="text-sm font-medium text-slate-600">Trusted by 10,000+ businesses</span>
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
               ))}
-              <span className="text-sm text-slate-600 ml-2">4.8/5 researcher rating</span>
+              <span className="text-sm text-slate-600 ml-2">4.9/5 accuracy rating</span>
             </div>
           </div>
 
           {/* Features Grid */}
           <div className="max-w-7xl mx-auto">
             <h3 className="text-3xl font-bold text-slate-900 mb-4">
-              Advanced research capabilities at your fingertips
+              Automated bookkeeping made simple
             </h3>
             <p className="text-slate-600 mb-12 text-lg">
-              Powered by cutting-edge AI to enhance your research workflow
+              Advanced OCR and AI technology to streamline your financial workflow
             </p>
             
             <div className="grid md:grid-cols-3 gap-8 mb-16">
               <div className="group bg-white/60 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/80 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-white/50">
                 <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-200">
-                  <Lightbulb className="w-7 h-7 text-white" />
+                  <Eye className="w-7 h-7 text-white" />
                 </div>
-                <h4 className="text-xl font-bold text-slate-900 mb-4">Smart Insights</h4>
+                <h4 className="text-xl font-bold text-slate-900 mb-4">OCR Extraction</h4>
                 <p className="text-slate-600 leading-relaxed">
-                  AI extracts key findings, main arguments, and critical data points from any webpage. 
-                  Get instant understanding of complex content.
+                  Advanced optical character recognition extracts all text, amounts, dates, and vendor 
+                  information from any receipt or invoice format.
                 </p>
               </div>
               
               <div className="group bg-white/60 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/80 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-white/50">
                 <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-r from-slate-500 to-slate-600 rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-200">
-                  <FileText className="w-7 h-7 text-white" />
+                  <Calculator className="w-7 h-7 text-white" />
                 </div>
-                <h4 className="text-xl font-bold text-slate-900 mb-4">Research Summaries</h4>
+                <h4 className="text-xl font-bold text-slate-900 mb-4">AI Categorization</h4>
                 <p className="text-slate-600 leading-relaxed">
-                  Generate comprehensive summaries with citations, methodology analysis, 
-                  and structured takeaways for academic and professional research.
+                  Intelligent AI automatically categorizes expenses, identifies tax-deductible items, 
+                  and suggests proper accounting codes for each transaction.
                 </p>
               </div>
               
               <div className="group bg-white/60 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/80 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-white/50">
                 <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-200">
-                  <BarChart3 className="w-7 h-7 text-white" />
+                  <Database className="w-7 h-7 text-white" />
                 </div>
-                <h4 className="text-xl font-bold text-slate-900 mb-4">Data Visualization</h4>
+                <h4 className="text-xl font-bold text-slate-900 mb-4">Auto-Storage</h4>
                 <p className="text-slate-600 leading-relaxed">
-                  Transform textual information into charts, graphs, and visual insights. 
-                  Make complex data accessible and presentation-ready.
+                  Processed data is automatically stored in your database with proper indexing, 
+                  making it searchable and ready for reporting and analysis.
                 </p>
               </div>
             </div>
@@ -231,32 +288,32 @@ const Generate: React.FC = () => {
               </div>
               <div className="relative z-10">
                 <div className="text-center mb-8">
-                  <h3 className="text-3xl font-bold mb-2">Accelerating research worldwide</h3>
-                  <p className="text-slate-200 text-lg">Join academics, analysts, and researchers who trust PageWhisper</p>
+                  <h3 className="text-3xl font-bold mb-2">Streamlining bookkeeping globally</h3>
+                  <p className="text-slate-200 text-lg">Join businesses who trust SmartBooks for automated financial record-keeping</p>
                 </div>
                 <div className="grid md:grid-cols-4 gap-8 text-center">
                   <div>
                     <div className="text-4xl font-bold mb-2 flex items-center justify-center gap-1">
-                      <FileText className="w-8 h-8 text-blue-300" />
-                      2M+
+                      <Receipt className="w-8 h-8 text-blue-300" />
+                      5M+
                     </div>
-                    <div className="text-slate-300">Pages Analyzed</div>
+                    <div className="text-slate-300">Receipts Processed</div>
                   </div>
                   <div>
                     <div className="text-4xl font-bold mb-2 flex items-center justify-center gap-1">
-                      <Users className="w-8 h-8 text-emerald-300" />
-                      25K+
+                      <Building className="w-8 h-8 text-emerald-300" />
+                      15K+
                     </div>
-                    <div className="text-slate-300">Active Researchers</div>
+                    <div className="text-slate-300">Active Businesses</div>
                   </div>
                   <div>
-                    <div className="text-4xl font-bold mb-2">95%</div>
-                    <div className="text-slate-300">Accuracy Rate</div>
+                    <div className="text-4xl font-bold mb-2">99.2%</div>
+                    <div className="text-slate-300">OCR Accuracy</div>
                   </div>
                   <div>
                     <div className="text-4xl font-bold mb-2 flex items-center justify-center gap-1">
                       <Sparkles className="w-8 h-8 text-amber-300" />
-                      80%
+                      90%
                     </div>
                     <div className="text-slate-300">Time Saved</div>
                   </div>
@@ -268,36 +325,36 @@ const Generate: React.FC = () => {
           {/* Use Cases */}
           <div className="max-w-6xl mx-auto mt-20">
             <h3 className="text-3xl font-bold text-slate-900 mb-12 text-center">
-              Perfect for every type of researcher
+              Perfect for every business size
             </h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-200/50">
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <BookOpen className="w-6 h-6 text-blue-600" />
+                  <Users className="w-6 h-6 text-blue-600" />
                 </div>
-                <h4 className="font-bold text-slate-900 mb-2">Academics</h4>
-                <p className="text-sm text-slate-600">Literature reviews and research synthesis</p>
+                <h4 className="font-bold text-slate-900 mb-2">Freelancers</h4>
+                <p className="text-sm text-slate-600">Track expenses and organize receipts</p>
               </div>
               <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-200/50">
                 <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <BarChart3 className="w-6 h-6 text-emerald-600" />
+                  <Building className="w-6 h-6 text-emerald-600" />
                 </div>
-                <h4 className="font-bold text-slate-900 mb-2">Analysts</h4>
-                <p className="text-sm text-slate-600">Market research and trend analysis</p>
+                <h4 className="font-bold text-slate-900 mb-2">Small Business</h4>
+                <p className="text-sm text-slate-600">Automate expense management</p>
               </div>
               <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-200/50">
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <Brain className="w-6 h-6 text-purple-600" />
+                  <Calculator className="w-6 h-6 text-purple-600" />
                 </div>
-                <h4 className="font-bold text-slate-900 mb-2">Consultants</h4>
-                <p className="text-sm text-slate-600">Client research and industry insights</p>
+                <h4 className="font-bold text-slate-900 mb-2">Accountants</h4>
+                <p className="text-sm text-slate-600">Process client documents efficiently</p>
               </div>
               <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 text-center border border-slate-200/50">
                 <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <Lightbulb className="w-6 h-6 text-amber-600" />
+                  <BarChart3 className="w-6 h-6 text-amber-600" />
                 </div>
-                <h4 className="font-bold text-slate-900 mb-2">Journalists</h4>
-                <p className="text-sm text-slate-600">Fact-checking and source analysis</p>
+                <h4 className="font-bold text-slate-900 mb-2">Enterprises</h4>
+                <p className="text-sm text-slate-600">Scale financial data processing</p>
               </div>
             </div>
           </div>
@@ -305,21 +362,21 @@ const Generate: React.FC = () => {
           {/* CTA Section */}
           <div className="max-w-3xl mx-auto mt-20 text-center">
             <h3 className="text-3xl font-bold text-slate-900 mb-4">
-              Ready to accelerate your research?
+              Ready to automate your bookkeeping?
             </h3>
             <p className="text-xl text-slate-600 mb-8">
-              Join thousands of researchers using PageWhisper to transform how they analyze and understand web content.
+              Join thousands of businesses using SmartBooks to transform their financial record-keeping.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="px-8 py-4 bg-gradient-to-r from-slate-700 to-blue-700 text-white font-bold rounded-2xl hover:shadow-xl transition-all hover:-translate-y-1">
-                Start Free Research
+                Start Free Trial
               </button>
               <button className="px-8 py-4 border-2 border-slate-300 text-slate-700 font-bold rounded-2xl hover:border-slate-400 hover:bg-slate-50 transition-all">
                 View Demo
               </button>
             </div>
             <p className="text-sm text-slate-500 mt-4">
-              Used by researchers at Harvard, MIT, Stanford, and 500+ other institutions
+              Trusted by businesses from startups to Fortune 500 companies
             </p>
           </div>
         </div>

@@ -1,30 +1,36 @@
 from concurrent.futures import ThreadPoolExecutor
 from google import genai
-
-from services.data.semantic_chunker import Chunking
-
-
-from concurrent.futures import ThreadPoolExecutor
+from langchain_ollama import OllamaLLM
+from app.services.data.semantic_chunker import Chunking
+from dotenv import load_dotenv
+from langchain_core.prompts import PromptTemplate
+from transformers import pipeline
+load_dotenv()
 
 class Summarizer:
     
     def __init__(self, max_workers=4):
-        self.model = genai.Client()
+        self.summarizer_model = genai.Client()
+        
+        self.model = OllamaLLM(
+            model="llama3.2",
+        )
+
         self.max_workers = max_workers
     
     def summarize_chunks(self, text: str) -> str:
-        prompt = f"""
+        prompt_template = PromptTemplate.from_template( """
         You are a helpful summarization assistant.
         Please summarize the following text clearly,short and concisely,
         focusing on the main points and ignoring redundancies:
         
         {text}
         """
-        response = self.model.models.generate_content(
-            model="gemini-2.5-flash", 
-            contents=prompt
         )
-        return response.text
+        formatted_prompt = prompt_template.format(text=text)
+        response = self.model.invoke(formatted_prompt)
+        print(response)
+        return response
     
     def get_summary(self, text: str) -> str:
      
@@ -44,7 +50,7 @@ class Summarizer:
 
         {" ".join(summarize_texts)}
         """
-        response = self.model.models.generate_content(
+        response = self.summarizer_model.models.generate_content(
             model="gemini-2.5-flash", 
             contents=final_prompt
         )

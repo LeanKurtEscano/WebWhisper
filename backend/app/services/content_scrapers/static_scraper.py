@@ -2,7 +2,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-from services.data.semantic_chunker import Chunking
+from app.services.data.semantic_chunker import Chunking
 class WebScraper:
     
     
