@@ -10,10 +10,10 @@ from typing import List
 router = APIRouter()
 
 @router.post("/receipts")
-async def scrape_insights(request: List[UploadFile] = File(...)):
+async def scrape_insights(receipts: List[UploadFile] = File(...)):
     with ThreadPoolExecutor(max_workers=4) as executor:
-        parsers = list(executor.map(ReceiptParser, request))
+        parsers = [ReceiptParser(receipt) for receipt in receipts]
         json_results = list(executor.map(lambda p: p.extracted_to_json(), parsers))
         print(json_results)                      
     
-    return JSONResponse(status_code=200, content={"message": "Scraping insights..."})
+    return JSONResponse(status_code=201, content={"message": "Scraping insights..."})

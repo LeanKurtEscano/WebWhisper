@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Receipt, Upload, Eye, Trash2, ArrowRight, Check, AlertCircle, Calculator, Database, FileText, BarChart3, Sparkles, Star, Users, Building } from 'lucide-react';
-
+import { receiptApiClient } from '../config/apiConfig';
 const Generate: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -46,13 +46,15 @@ const Generate: React.FC = () => {
         formData.append('receipts', file);
       });
       
-      // const response = await fetch('/api/analyze-receipts', {
-      //   method: 'POST',
-      //   body: formData
-      // });
+      const response = await receiptApiClient.post('/receipts', formData, {
+        headers: {
+           'Content-Type': 'multipart/form-data',
+        },
+      });
       
-      // Simulate processing
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      if(response.status === 201) {
+        // Handle successful response
+      }
       
     } catch(error) {
        console.error("Error analyzing receipts:", error);

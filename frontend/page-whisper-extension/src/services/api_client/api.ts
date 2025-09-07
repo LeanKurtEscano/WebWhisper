@@ -3,9 +3,6 @@ import axios from "axios";
 export const createApi = (baseURL: string, tokenKey?: string) => {
   const instance = axios.create({
     baseURL,
-    headers: {
-      "Content-Type": "application/json",
-    },
   });
 
   instance.interceptors.request.use(

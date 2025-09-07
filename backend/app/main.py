@@ -14,4 +14,4 @@ app.add_middleware(
 )
 
 
-app.include_router(scrape_insights.router,prefix="/api/scraper/v1")
+app.include_router(scrape_insights.router,prefix="/api/receipt/v1")
